@@ -16,6 +16,23 @@ Designed for developers who want a fast, keyboard-driven workflow with a beautif
 - 🎯 **Sensible tmux defaults** (Ctrl+a prefix, Vim-style navigation)
 - 📦 **One-script installation**
 
+## 📸 Screenshots
+
+### The 3-pane layout in action
+
+![Main Layout](screenshots/layout.png)
+*Vim editor (left) with NERDTree, Claude Code (top-right), Terminal with Git status (bottom-right)*
+
+### Real-time Git diff in Vim
+
+![Git Diff](screenshots/git-diff.png)
+*GitGutter shows additions (green +), modifications (yellow ~), and deletions (red _) directly in the gutter*
+
+### FZF Project Switcher
+
+![Project Picker](screenshots/projs-fzf.png)
+*Press `projs` to fuzzy-find any project in `~/projects` or switch to an active tmux session*
+
 ## 📋 Requirements
 
 - Linux (tested on Ubuntu 24.04+ and 26.04)
