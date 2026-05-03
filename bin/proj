@@ -1,3 +1,4 @@
+cat > ~/bin/proj << 'EOF'
 #!/bin/bash
 
 # ============================================
@@ -8,12 +9,14 @@
 # - Sağ alt pane: Terminal
 # ============================================
 
-set -e
+# NOT: set -e KULLANMIYORUZ
+# tmux has-session "session yok" durumunda exit code 1 döner,
+# bu normal davranış ama set -e ile script ölür.
 
 # Mevcut klasörü al
 PROJECT_DIR="$(pwd)"
 
-# Klasör adından session ismi türet (lowercase, underscores)
+# Klasör adından session ismi türet
 SESSION_NAME=$(basename "$PROJECT_DIR" | tr '. ' '_' | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]')
 
 # Boşsa default
@@ -21,36 +24,37 @@ if [ -z "$SESSION_NAME" ]; then
     SESSION_NAME="default"
 fi
 
-# Mevcut session var mı?
-tmux has-session -t "$SESSION_NAME" 2>/dev/null
+# Mevcut session var mı? (if-then ile exit code güvenli kontrol)
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    SESSION_EXISTS=true
+else
+    SESSION_EXISTS=false
+fi
 
-if [ $? != 0 ]; then
-    # ===== YENİ SESSION OLUŞTUR =====
-    
+if [ "$SESSION_EXISTS" = false ]; then
+    # Yeni session oluştur
     tmux new-session -d -s "$SESSION_NAME" -c "$PROJECT_DIR" -n "main"
     
     # Dikey böl - sağ taraf %30
     tmux split-window -h -p 30 -c "$PROJECT_DIR" -t "$SESSION_NAME"
     
-    # Sağ pane'i yatay böl - alt %50
+    # Sağ pane'i yatay böl
     tmux split-window -v -p 50 -c "$PROJECT_DIR" -t "$SESSION_NAME"
     
-    # ===== KOMUTLARI GÖNDER =====
-    
-    # Pane 0 (sol büyük): Vim
+    # Pane 0: Vim
     tmux send-keys -t "$SESSION_NAME":0.0 "vim ." C-m
     
-    # Pane 1 (sağ üst): Claude Code (varsa)
+    # Pane 1: Claude Code
     if command -v claude &> /dev/null; then
         tmux send-keys -t "$SESSION_NAME":0.1 "claude" C-m
     else
         tmux send-keys -t "$SESSION_NAME":0.1 "echo 'Claude Code not installed. Install: npm i -g @anthropic-ai/claude-code'" C-m
     fi
     
-    # Pane 2 (sağ alt): Git status veya boş
+    # Pane 2: Terminal
     tmux send-keys -t "$SESSION_NAME":0.2 "clear && git status 2>/dev/null || echo 'Ready'" C-m
     
-    # ===== PANE İSİMLERİ =====
+    # Pane isimleri
     tmux select-pane -t "$SESSION_NAME":0.0 -T "Editor"
     tmux select-pane -t "$SESSION_NAME":0.1 -T "Claude"
     tmux select-pane -t "$SESSION_NAME":0.2 -T "Terminal"
@@ -65,3 +69,6 @@ if [ -n "$TMUX" ]; then
 else
     tmux attach-session -t "$SESSION_NAME"
 fi
+EOF
+
+chmod +x ~/bin/proj
