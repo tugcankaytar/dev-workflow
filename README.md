@@ -1,8 +1,13 @@
 # 🚀 Dev-Workflow
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Ubuntu%20%7C%20Debian-orange)
+![Vim](https://img.shields.io/badge/vim-%2311AB00.svg?logo=vim&logoColor=white)
+![Tmux](https://img.shields.io/badge/tmux-1BB91F.svg?logo=tmux&logoColor=white)
+![GitHub stars](https://img.shields.io/github/stars/tugcankaytar/dev-workflow?style=social)
+
 Modern terminal-based development environment with **Vim + Tmux + Git integration**.  
 Designed for developers who want a fast, keyboard-driven workflow with a beautiful layout.
-
 ![Layout Preview](screenshots/layout.png)
 
 ## ✨ Features
