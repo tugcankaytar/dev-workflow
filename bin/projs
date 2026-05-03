@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# ============================================
+# PROJS - FZF Project Selector
+# ~/projects altındaki klasörleri ve mevcut tmux
+# session'larını listeler, FZF ile seçtirir
+# ============================================
+
+set -e
+
+PROJECTS_DIR="${PROJECTS_DIR:-$HOME/projects}"
+
+# fzf kontrolü
+if ! command -v fzf &> /dev/null; then
+    echo "Error: fzf not installed. Install: sudo apt install fzf"
+    exit 1
+fi
+
+# Aktif session'lar
+ACTIVE_SESSIONS=$(tmux ls 2>/dev/null | awk -F: '{print "[ACTIVE] " $1}' || true)
+
+# Projeleri listele
+if [ -d "$PROJECTS_DIR" ]; then
+    PROJECTS=$(ls -1 "$PROJECTS_DIR" 2>/dev/null | sed "s|^|[NEW]    |")
+else
+    PROJECTS=""
+fi
+
+# FZF ile seç
+SELECTED=$(echo -e "$ACTIVE_SESSIONS\n$PROJECTS" | grep -v '^$' | fzf --prompt="Select project: " --height=40% --reverse --border)
+
+if [ -z "$SELECTED" ]; then
+    exit 0
+fi
+
+TYPE=$(echo "$SELECTED" | awk '{print $1}')
+NAME=$(echo "$SELECTED" | awk '{print $2}')
+
+if [ "$TYPE" == "[ACTIVE]" ]; then
+    if [ -n "$TMUX" ]; then
+        tmux switch-client -t "$NAME"
+    else
+        tmux attach -t "$NAME"
+    fi
+else
+    cd "$PROJECTS_DIR/$NAME" && proj
+fi

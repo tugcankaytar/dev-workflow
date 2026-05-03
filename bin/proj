@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# ============================================
+# PROJ - Project Layout Launcher
+# Açtığın klasör için tmux layout oluşturur:
+# - Sol büyük pane: Vim
+# - Sağ üst pane: Claude Code (varsa)
+# - Sağ alt pane: Terminal
+# ============================================
+
+set -e
+
+# Mevcut klasörü al
+PROJECT_DIR="$(pwd)"
+
+# Klasör adından session ismi türet (lowercase, underscores)
+SESSION_NAME=$(basename "$PROJECT_DIR" | tr '. ' '_' | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]')
+
+# Boşsa default
+if [ -z "$SESSION_NAME" ]; then
+    SESSION_NAME="default"
+fi
+
+# Mevcut session var mı?
+tmux has-session -t "$SESSION_NAME" 2>/dev/null
+
+if [ $? != 0 ]; then
+    # ===== YENİ SESSION OLUŞTUR =====
+    
+    tmux new-session -d -s "$SESSION_NAME" -c "$PROJECT_DIR" -n "main"
+    
+    # Dikey böl - sağ taraf %30
+    tmux split-window -h -p 30 -c "$PROJECT_DIR" -t "$SESSION_NAME"
+    
+    # Sağ pane'i yatay böl - alt %50
+    tmux split-window -v -p 50 -c "$PROJECT_DIR" -t "$SESSION_NAME"
+    
+    # ===== KOMUTLARI GÖNDER =====
+    
+    # Pane 0 (sol büyük): Vim
+    tmux send-keys -t "$SESSION_NAME":0.0 "vim ." C-m
+    
+    # Pane 1 (sağ üst): Claude Code (varsa)
+    if command -v claude &> /dev/null; then
+        tmux send-keys -t "$SESSION_NAME":0.1 "claude" C-m
+    else
+        tmux send-keys -t "$SESSION_NAME":0.1 "echo 'Claude Code not installed. Install: npm i -g @anthropic-ai/claude-code'" C-m
+    fi
+    
+    # Pane 2 (sağ alt): Git status veya boş
+    tmux send-keys -t "$SESSION_NAME":0.2 "clear && git status 2>/dev/null || echo 'Ready'" C-m
+    
+    # ===== PANE İSİMLERİ =====
+    tmux select-pane -t "$SESSION_NAME":0.0 -T "Editor"
+    tmux select-pane -t "$SESSION_NAME":0.1 -T "Claude"
+    tmux select-pane -t "$SESSION_NAME":0.2 -T "Terminal"
+    
+    # Sol pane aktif
+    tmux select-pane -t "$SESSION_NAME":0.0
+fi
+
+# Session'a bağlan
+if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$SESSION_NAME"
+else
+    tmux attach-session -t "$SESSION_NAME"
+fi

@@ -1,0 +1,169 @@
+" ============================================
+" DEV-WORKFLOW VIM CONFIGURATION
+" Modern Vim setup with Git integration
+" ============================================
+
+" ===== TEMEL AYARLAR =====
+set nocompatible
+syntax enable
+filetype plugin indent on
+
+" ===== GÖRÜNÜM =====
+set number
+set relativenumber
+set cursorline
+set ruler
+set showcmd
+set laststatus=2
+set background=dark
+
+" ===== DÜZENLEME =====
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set autoindent
+set smartindent
+set wrap
+set linebreak
+
+" ===== ARAMA =====
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+
+" ===== KULLANIM KOLAYLIĞI =====
+set mouse=a
+set clipboard=unnamedplus
+set wildmenu
+set wildmode=longest:full,full
+set scrolloff=8
+set sidescrolloff=15
+set hidden
+set updatetime=300
+
+" ===== BACKUP & UNDO =====
+set noswapfile
+set nobackup
+set undofile
+set undodir=~/.vim/undo
+
+" Undo klasörünü oluştur
+if !isdirectory($HOME . '/.vim/undo')
+    call mkdir($HOME . '/.vim/undo', 'p')
+endif
+
+" ===== LEADER KEY =====
+let mapleader = " "
+
+" ===== PLUGIN MANAGER (vim-plug) =====
+" vim-plug otomatik kurulsun (yoksa)
+if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+
+" ===== GIT ENTEGRASYONU =====
+" Anlık git diff göstergesi (sol kenarda +/-/~)
+Plug 'airblade/vim-gitgutter'
+
+" Vim içinde git komutları (:Git, :Gdiff, :Gblame, :Gcommit)
+Plug 'tpope/vim-fugitive'
+
+" ===== DOSYA GEZGİNİ =====
+Plug 'preservim/nerdtree'
+Plug 'ryanoasis/vim-devicons'
+
+" ===== FUZZY FINDER =====
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+" ===== STATUS BAR =====
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+" ===== EDIT GÜÇLENDİRME =====
+Plug 'tpope/vim-commentary'      " gcc ile satır yorumu
+Plug 'tpope/vim-surround'        " cs"' ile sarmalayıcı değiştir
+Plug 'jiangmiao/auto-pairs'      " parantez/tırnak otomatik kapat
+
+" ===== SYNTAX & LANGUAGES =====
+Plug 'sheerun/vim-polyglot'
+
+" ===== TEMA =====
+Plug 'morhetz/gruvbox'
+
+call plug#end()
+
+" ===== TEMA AYARLARI =====
+silent! colorscheme gruvbox
+let g:airline_theme = 'gruvbox'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#hunks#enabled = 1
+
+" ===== GITGUTTER AYARLARI =====
+" Anlık güncelleme (default 4 saniye -> 100ms)
+let g:gitgutter_max_signs = 500
+set signcolumn=yes
+
+" GitGutter kısayolları
+nmap <leader>gn <Plug>(GitGutterNextHunk)
+nmap <leader>gp <Plug>(GitGutterPrevHunk)
+nmap <leader>gs <Plug>(GitGutterStageHunk)
+nmap <leader>gu <Plug>(GitGutterUndoHunk)
+nmap <leader>gh <Plug>(GitGutterPreviewHunk)
+
+" ===== FUGITIVE KISAYOLLARI =====
+nnoremap <leader>gg :Git<CR>
+nnoremap <leader>gd :Gdiffsplit<CR>
+nnoremap <leader>gb :Git blame<CR>
+nnoremap <leader>gl :Git log --oneline<CR>
+nnoremap <leader>gc :Git commit<CR>
+nnoremap <leader>gP :Git push<CR>
+nnoremap <leader>gF :Git pull<CR>
+
+" ===== NERDTREE AYARLARI =====
+nnoremap <leader>e :NERDTreeToggle<CR>
+nnoremap <leader>f :NERDTreeFind<CR>
+let NERDTreeShowHidden = 1
+let NERDTreeIgnore = ['\.git$', 'node_modules$', '\.DS_Store$']
+
+" NERDTree açıkken son pencereyi kapatınca Vim de kapansın
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" ===== FZF AYARLARI =====
+nnoremap <leader>p :Files<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>r :Rg<CR>
+nnoremap <leader>/ :BLines<CR>
+
+" ===== KISAYOLLAR =====
+" Hızlı kaydet
+nnoremap <leader>w :w<CR>
+" Hızlı çık
+nnoremap <leader>q :q<CR>
+" Search highlight kapat
+nnoremap <leader><space> :nohlsearch<CR>
+" Pane gezinme (tmux ile uyumlu)
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Tab navigasyon
+nnoremap <leader>tn :tabnew<CR>
+nnoremap <leader>tc :tabclose<CR>
+nnoremap [t :tabprevious<CR>
+nnoremap ]t :tabnext<CR>
+
+" Indent koruyarak hareket
+vnoremap < <gv
+vnoremap > >gv
+
+" Yapıştırma sonrası seçimi koru
+vnoremap p "_dP

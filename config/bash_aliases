@@ -1,0 +1,37 @@
+# ============================================
+# DEV-WORKFLOW BASH ALIASES
+# ============================================
+
+# Tmux project shortcuts
+alias p='proj'
+alias ps='projs'
+alias tls='tmux ls'
+alias tk='tmux kill-session -t'
+alias ta='tmux attach -t'
+
+# Git shortcuts (terminal'de hızlı kullanım)
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate -20'
+alias ga='git add'
+alias gc='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias gco='git checkout'
+alias gb='git branch'
+
+# System monitoring
+alias h='htop'
+alias bt='btop'
+alias gpu='nvtop'
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ll='ls -lah'
+alias la='ls -A'
+
+# Safety
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
